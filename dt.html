@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>С Днем Рождения!</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: "Caveat", cursive;
+            text-align: center;
+            position: relative;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #word {
+            width: 100%;
+            position: absolute;
+            opacity: 0;
+            transition: opacity 0.5s ease, font-size 0.5s ease;
+            text-align: center;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        canvas {
+            top: 0;
+            left: 0;
+            position: absolute;
+            z-index: -10;
+        }
+
+        #message {
+            width: 100%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+
+        .letter {
+            display: inline-block;
+            font-size: 1vw;
+            opacity: 0;
+            text-transform: uppercase;
+            transition: font-size 1s, opacity 1s;
+        }
+
+        #smiley-container {
+            position: absolute;
+            z-index: -2;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .smiley {
+            position: absolute;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            white-space: nowrap;
+        }
+
+        .cake {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            max-width: 50%;
+            height: auto;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <div id="message"></div>
+    <div id="word"></div>
+    <canvas></canvas>
+    <div id="smiley-container"></div>
+    <img class="cake" src="./cake.png" alt="cake">
+    <script>
+        $(document).ready(function () {
+            const phrase = "С Днём Рождения!";
+            let delay = 0;
+
+            phrase.split('').forEach((char, index) => {
+                setTimeout(() => {
+
+                    if (char === ' ') {
+                        $('#message').append('<br>');
+                    } else {
+
+                        const neonColors = ['#F49DA6', '#DB4A4E', '#52428D', '#E98F62',
+                            '#C9576F', '#EEC7D2'
+                        ];
+                        const randomColor = neonColors[index % neonColors.length];
+
+                        const span = $('<span class="letter">' + char + '</span>');
+                        $('#message').append(span);
+
+
+                        span.css('color', randomColor);
+
+
+                        setTimeout(() => {
+                            span.css({
+                                'opacity': 1,
+                                'font-size': '12vw'
+                            });
+                        }, 100);
+                    }
+                }, delay);
+
+                delay += 300;
+            });
+            setTimeout(function () {
+                $("#message").remove();
+            }, 6000);
+        });
+    </script>
+    <script>
+        var canvas = document.querySelector('canvas');
+        var ctx = canvas.getContext('2d');
+        var squids = new Array(50);
+        var bubbles = new Array(77);
+        var t = 0;
+        //create bubbles
+        for (var i = 0; i < bubbles.length; i++) {
+            bubbles[i] = {
+                x: Math.random() * innerWidth,
+                y: Math.random() * innerHeight,
+                vx: 0.5 - Math.random(),
+                vy: -0.2 - Math.random(),
+                o: 0.05 + Math.random() * 0.1,
+                r: 3 + Math.random() * 20
+            };
+        }
+        var limit = function (d) {
+            if (d.x < -d.r) d.x = innerWidth + d.r;
+            if (d.x > innerWidth + d.r) d.x = -d.r;
+            if (d.y < -d.r) d.y = innerHeight + d.r;
+            if (d.y > innerHeight + d.r) d.y = -d.r;
+        };
+        var animate = function () {
+            t++;
+            canvas.width = innerWidth;
+            canvas.height = innerHeight;
+            bubbles.forEach(function (b) {
+                b.x += b.vx;
+                b.y += b.vy;
+                limit(b);
+                ctx.fillStyle = 'rgba(224,8,8,' + b.o + ')';
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.r, Math.PI * 2, 0);
+                ctx.fill();
+            });
+            squids.forEach(function (d) {
+                var w = Math.sin((t + (d.r * 100)) / 10);
+                d.x += d.vx * 4;
+                d.y -= w + 1;
+                d.y += d.vy;
+                limit(d);
+                var color1 = 'rgba(' + d.re + ',' + d.g + ',' + d.b + ',0.4)';
+                var color2 = 'rgba(' + d.re + ',' + d.g + ',' + d.b + ',0.2)';
+                ctx.fillStyle = color1;
+                ctx.beginPath();
+                ctx.arc(d.x, d.y, d.r, Math.PI + (-0.5 + d.vx) - (w / 4), (0.5 + d.vx) + (w / 4));
+                ctx.fill();
+                d.a.push({
+                    x: d.x,
+                    y: d.y - (d.r * 0.2)
+                });
+                if (d.a.length > d.r * 3) d.a.splice(0, 1);
+                d.a.forEach(function (p, i) {
+                    ctx.fillStyle = color2;
+                    ctx.fillRect(p.x, p.y, 2, 2);
+                    if (i > d.a.length / 2) {
+                        ctx.fillRect(p.x - (d.r / 4), p.y, 2, 2);
+                        ctx.fillRect(p.x + (d.r / 4), p.y, 2, 2);
+                        ctx.fillRect(p.x + (d.r / 2), p.y + 10, 2, 2);
+                        ctx.fillRect(p.x + (d.r / 2), p.y + 10, 2, 2);
+                    }
+                    if (i > d.a.length / 3) {
+                        ctx.fillRect(p.x + (d.r / 10), p.y - 10, 2, 2);
+                        ctx.fillRect(p.x - (d.r / 10), p.y - 10, 2, 2);
+                        ctx.fillRect(p.x + (d.r / 1.5), p.y, 2, 2);
+                        ctx.fillRect(p.x - (d.r / 1.5), p.y, 2, 2);
+                    }
+                });
+            });
+            requestAnimationFrame(animate);
+        };
+        animate();
+    </script>
+    <script>
+        $(document).ready(function () {
+            const phrase = [
+                "Мой самый лучший бро!",
+                "Поздравляю тебя!",
+                "Сегодня твой день,",
+                "и я хочу пожелать тебе",
+                "только самого лучшего и волшебного! ✨",
+                "Пусть каждый день дарит тебе радость,",
+                "а мечты становятся реальностью! 🌈",
+                "Желаю удачи и успеха во всех твоих начинаниях💪🌟",
+                "Ты — моя самая лучшая подруга,💫",
+                "всегда понимающая,",
+                "поддерживающая и искренняя🤍",
+                "Я  ценю  нашу  дружбу  и  счастлива, что ты есть в моей жизни!  🙏",
+                "Обнимаю тебя крепко и посылаю целую порцию любви! 💋🐥",
+                "С ДНЁМ РОЖДЕНИЯ!"
+            ];
+
+            const colors = ['#F49DA6', '#DB4A4E', '#52428D', '#E98F62',
+                '#C9576F'
+            ];
+
+            const fontSizes = ['8vw', '9vw', '10vw'];
+
+            setTimeout(() => {
+                showWords(phrase, 0);
+            }, 6200);
+
+            function showWords(words, index) {
+                if (index < words.length) {
+                    const wordPair = words[index];
+                    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                    const randomFontSize = fontSizes[Math.floor(Math.random() * fontSizes.length)];
+
+                    $('#word').text(wordPair).css({
+                        'color': randomColor,
+                        'font-size': randomFontSize,
+                        'opacity': 1
+                    });
+
+                    setTimeout(() => {
+                        $('#word').css('opacity', 0);
+                        setTimeout(() => {
+                            showWords(words, index + 1);
+                        }, 500);
+                    }, 1500);
+                }
+            }
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            const totalSmileys = 50;
+            const smileysPerBatch = 5;
+            const duration = 1000;
+            const startDelay = 31000;
+
+
+            setTimeout(() => {
+                for (let i = 0; i < totalSmileys; i += smileysPerBatch) {
+                    // Пропускаем каждые 1000 мс для появления группы смайлов
+                    setTimeout(() => {
+                        for (let j = 0; j < smileysPerBatch; j++) {
+                            if (i + j < totalSmileys) {
+                                const $smiley = $('<div class="smiley">💋</div>');
+
+
+                                const randomSize = Math.random() * (48 - 16) +
+                                    16;
+                                const randomOpacity = Math.random() * (0.5 - 0.2) +
+                                    0.2;
+
+
+                                const randomX = Math.random() * 100;
+                                const randomY = Math.random() * 100;
+
+
+                                $smiley.css({
+                                    left: `${randomX}vw`,
+                                    top: `${randomY}vh`,
+                                    fontSize: `${randomSize}px`,
+                                    opacity: randomOpacity
+                                });
+
+                                $('#smiley-container').append($smiley);
+
+
+                                setTimeout(() => {
+                                    $smiley.css('opacity', randomOpacity);
+                                }, 10);
+
+
+                                setTimeout(() => {
+                                    $smiley.css('opacity',
+                                        0);
+                                    setTimeout(() => {
+                                        $smiley
+                                            .remove();
+                                    }, 500);
+                                }, duration);
+                            }
+                        }
+                    }, i / smileysPerBatch * 600);
+                }
+            }, startDelay);
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            setTimeout(function () {
+                $(".cake").css("opacity", "1");
+                $(".cake").css("display", "block");
+            }, 34000);
+        });
+    </script>
+</body>
+
+</html>
